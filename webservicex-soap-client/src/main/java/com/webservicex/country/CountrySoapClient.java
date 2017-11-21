@@ -50,7 +50,7 @@ public class CountrySoapClient {
 	public List<Table> getCurrencies() throws JAXBException, UnsupportedEncodingException {
 		List<Table> currencies = new ArrayList<Table>();
         final Unmarshaller u = context.createUnmarshaller();
-        final String currenciesStr = countrySoap.getCountries();
+        final String currenciesStr = countrySoap.getCurrencies();
 		final NewDataSet currenciesList = (NewDataSet)u.unmarshal(new ByteArrayInputStream(currenciesStr.getBytes(StandardCharsets.UTF_8.name())));
 		if(currenciesList != null) {
 			currencies = currenciesList.getData();

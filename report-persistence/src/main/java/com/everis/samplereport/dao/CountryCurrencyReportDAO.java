@@ -39,6 +39,8 @@ public class CountryCurrencyReportDAO extends AbstractReportDAO {
         
         try {
             conn = getConnection();
+            // Opening transaction
+            conn.setAutoCommit(false);
             stmt = conn.prepareStatement(INSERT_REPORT_ITEM_STMT);
             
             stmt.setString(1, item.getCountryName());
@@ -51,11 +53,9 @@ public class CountryCurrencyReportDAO extends AbstractReportDAO {
             
             stmt.executeUpdate();
             
-            if(!conn.getAutoCommit()){
-                conn.commit();
-            }
+            conn.commit();
         } catch(Exception e){
-            if(conn != null && !conn.getAutoCommit()){
+            if(conn != null){
                 conn.rollback();
             }
             throw e;
