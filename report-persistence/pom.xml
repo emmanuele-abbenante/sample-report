@@ -26,11 +26,6 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.oracle.jdbc</groupId>
-			<artifactId>ojdbc8</artifactId>
-			<version>12.2.0.1</version>
-		</dependency>
-		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>common</artifactId>
 		</dependency>
@@ -40,18 +35,35 @@
 		</dependency>
 	</dependencies>
 
-	<repositories>
-		<repository>
-			<id>maven.oracle.com</id>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<url>https://maven.oracle.com</url>
-			<layout>default</layout>
-		</repository>
-	</repositories>
+	<build>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.5.2</version>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>install-driver</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<configuration>
+							<groupId>com.oracle.jdbc</groupId>
+							<artifactId>ojdbc8</artifactId>
+							<version>12.2.0.1</version>
+							<packaging>jar</packaging>
+							<file>${basedir}/dependencies/ojdbc8-12.2.0.1.jar</file>
+							<createChecksum>true</createChecksum>
+							<generatePom>true</generatePom>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
 	
 </project>
