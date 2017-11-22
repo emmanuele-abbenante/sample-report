@@ -48,28 +48,28 @@ public class CountryCurrencyReportService {
 		
     	final List<Table> currencies = CountrySoapClient.getInstance().getCurrencies();
 		for (final Table currency : currencies) {
-			final String countryName = currency.getName();
-			final String gmtStr = CountrySoapClient.getInstance().getGMT(countryName).getGmt();
-			if(StringUtils.isBlank(gmtStr)){
-				log.error("No GMT available for country \"" + countryName + "\"");
-				continue;
-			}
-			final Matcher matcher = GMT_PATTERN.matcher(gmtStr); 
-			if(!matcher.matches()){
-				log.warn("GMT for country \"" + countryName + "\" doesn't match the pattern \"+h\": " + gmtStr);
-				continue;
-			}
-			
-			final CountryCurrencyReportItem item = buildItem(currency);
-			items.add(item);
-			item.setItalianTime(currentItalianTime);
-			final Integer gmt = ((Long)GMT_FORMATTER.parse(gmtStr)).intValue();
-			item.setGmt(gmt);
-			final Calendar localTimeCal = GregorianCalendar.getInstance();
-			localTimeCal.setTime(currentGmtTime);
-			localTimeCal.add(Calendar.HOUR_OF_DAY, gmt);
-			item.setLocalTime(localTimeCal.getTime());
-			CountryCurrencyReportDAO.getInstance().insertItem(item);
+			processCurrency(currency, items, currentItalianTime, currentGmtTime);
+		}
+		
+		return items;
+    }
+    
+    public List<CountryCurrencyReportItem> importCountriesCurrenciesData(final List<String> countries) throws Exception {
+    	final List<CountryCurrencyReportItem> items = new ArrayList<CountryCurrencyReportItem>();
+    	
+    	final Date currentItalianTime = new Date();
+    	final Calendar gmtTimeCal = GregorianCalendar.getInstance();
+		gmtTimeCal.setTime(currentItalianTime);
+		gmtTimeCal.add(Calendar.HOUR_OF_DAY, -1);
+		final Date currentGmtTime = gmtTimeCal.getTime();
+		
+		final List<Table> currencies = new ArrayList<Table>();
+		for(final String countryName : countries){
+			currencies.add(CountrySoapClient.getInstance().getCurrencyByCountry(countryName));
+		}
+		
+		for (final Table currency : currencies) {
+			processCurrency(currency, items, currentItalianTime, currentGmtTime);
 		}
 		
 		return items;
@@ -82,6 +82,31 @@ public class CountryCurrencyReportService {
     	item.setCurrency(currency.getCurrency());
     	item.setCurrencyCode(currency.getCurrencyCode());
     	return item;
+    }
+    
+    private void processCurrency(final Table currency, final List<CountryCurrencyReportItem> items, final Date currentItalianTime, final Date currentGmtTime) throws Exception{
+		final String countryName = currency.getName();
+		final String gmtStr = CountrySoapClient.getInstance().getGMT(countryName).getGmt();
+		if(StringUtils.isBlank(gmtStr)){
+			log.error("No GMT available for country \"" + countryName + "\"");
+			return;
+		}
+		final Matcher matcher = GMT_PATTERN.matcher(gmtStr); 
+		if(!matcher.matches()){
+			log.warn("GMT for country \"" + countryName + "\" doesn't match the pattern \"+h\": " + gmtStr);
+			return;
+		}
+		
+		final CountryCurrencyReportItem item = buildItem(currency);
+		items.add(item);
+		item.setItalianTime(currentItalianTime);
+		final Integer gmt = ((Long)GMT_FORMATTER.parse(gmtStr)).intValue();
+		item.setGmt(gmt);
+		final Calendar localTimeCal = GregorianCalendar.getInstance();
+		localTimeCal.setTime(currentGmtTime);
+		localTimeCal.add(Calendar.HOUR_OF_DAY, gmt);
+		item.setLocalTime(localTimeCal.getTime());
+		CountryCurrencyReportDAO.getInstance().insertItem(item);
     }
     
 }

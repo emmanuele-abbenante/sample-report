@@ -47,6 +47,19 @@ public class CountrySoapClient {
 		return instance;
 	}
 	
+	public Table getCurrencyByCountry(final String countryName) throws JAXBException, UnsupportedEncodingException {
+		Table currency = new Table();
+        final Unmarshaller u = context.createUnmarshaller();
+        final String currenciesStr = countrySoap.getCurrencyByCountry(countryName);
+		final NewDataSet currenciesList = (NewDataSet)u.unmarshal(new ByteArrayInputStream(currenciesStr.getBytes(StandardCharsets.UTF_8.name())));
+		if(currenciesList != null && currenciesList.getData() != null) {
+			currency = currenciesList.getData().get(0);
+		} else {
+			log.warn("No currency retrieved");
+		}
+		return currency;
+	}
+
 	public List<Table> getCurrencies() throws JAXBException, UnsupportedEncodingException {
 		List<Table> currencies = new ArrayList<Table>();
         final Unmarshaller u = context.createUnmarshaller();
