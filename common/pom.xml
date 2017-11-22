@@ -5,11 +5,11 @@
   <parent>
     <groupId>com.everis.samplereport</groupId>
     <artifactId>sample-report</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
   </parent>
   
   <artifactId>common</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   
 	<dependencies>
 		<dependency>
