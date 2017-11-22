@@ -2,7 +2,9 @@ package com.everis.samplereport.business;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.everis.samplereport.model.CountryCurrencyReportItem;
 
@@ -21,6 +23,14 @@ public class CountryCurrencyReportItemCSVMapper {
             instance = new CountryCurrencyReportItemCSVMapper();
         }
         return instance;
+    }
+    
+    public List<String> toCSV(final List<CountryCurrencyReportItem> items){
+    	final List<String> csvRows = new ArrayList<String>();
+		for (final CountryCurrencyReportItem item : items) {
+			csvRows.add(toCSV(item));
+		}
+		return csvRows;
     }
     
     public String toCSV(final CountryCurrencyReportItem item){

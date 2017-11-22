@@ -1,6 +1,8 @@
 package com.everis.samplereport.business;
 
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,6 +26,10 @@ public class CountryCurrencyReportService {
     
 	private static final Pattern GMT_PATTERN = Pattern.compile("\\+[0-9][0-9]?");
 	private static final DecimalFormat GMT_FORMATTER = new DecimalFormat("+#");
+	
+    private static final String TIMESTAMP_PATTERN = "yyyy-MM-dd HH:mm";
+    private static final DateFormat TIMESTAMP_FORMATTER = new SimpleDateFormat(TIMESTAMP_PATTERN);
+    
 	private static final Logger log = LoggerFactory.getLogger(CountryCurrencyReportService.class);
 	
     private static CountryCurrencyReportService instance;
@@ -35,6 +41,36 @@ public class CountryCurrencyReportService {
             instance = new CountryCurrencyReportService();
         }
         return instance;
+    }
+    
+    public List<CountryCurrencyReportItem> retrieveLatestDataInDateRange(final String dateStr) throws Exception {
+    	final Date date = TIMESTAMP_FORMATTER.parse(dateStr);
+    	
+    	final Calendar fromDateCal = GregorianCalendar.getInstance();
+		fromDateCal.setTime(date);
+		fromDateCal.add(Calendar.MINUTE, -10);
+    	final Calendar toDateCal = GregorianCalendar.getInstance();
+    	toDateCal.setTime(date);
+    	toDateCal.add(Calendar.MINUTE, 10);
+    	
+    	return CountryCurrencyReportDAO.getInstance().retrieveLatestDataInDateRange(fromDateCal.getTime(), toDateCal.getTime());
+    }
+    
+    public CountryCurrencyReportItem retrieveLatestDataInDateRangeByCountry(final String country, final String dateStr) throws Exception {
+    	final Date date = TIMESTAMP_FORMATTER.parse(dateStr);
+    	
+    	final Calendar fromDateCal = GregorianCalendar.getInstance();
+		fromDateCal.setTime(date);
+		fromDateCal.add(Calendar.MINUTE, -10);
+    	final Calendar toDateCal = GregorianCalendar.getInstance();
+    	toDateCal.setTime(date);
+    	toDateCal.add(Calendar.MINUTE, 10);
+    	
+    	return CountryCurrencyReportDAO.getInstance().retrieveLatestDataInDateRangeByCountry(country, fromDateCal.getTime(), toDateCal.getTime());
+    }
+    
+    public List<CountryCurrencyReportItem> retrieveLatestData() throws Exception {
+    	return CountryCurrencyReportDAO.getInstance().retrieveLatestData();
     }
     
     public List<CountryCurrencyReportItem> importCountriesCurrenciesData() throws Exception {

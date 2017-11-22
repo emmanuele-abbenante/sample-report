@@ -6,10 +6,9 @@ import java.sql.SQLException;
 
 import org.apache.commons.configuration2.Configuration;
 
-import com.everis.common.jdbc.AbstractJDBCDAO;
 import com.everis.common.properties.PropertiesUtils;
 
-public abstract class AbstractReportDAO extends AbstractJDBCDAO {
+public abstract class AbstractReportDAO {
     
     private static Configuration config;
     static {
@@ -20,7 +19,6 @@ public abstract class AbstractReportDAO extends AbstractJDBCDAO {
         }
     }
     
-    @Override
     protected Connection getConnection() throws SQLException {
         return DriverManager.getConnection(config.getString("url"), config.getString("user"), config.getString("password"));
     }
