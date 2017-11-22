@@ -2,35 +2,21 @@ package com.everis.samplereport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.everis.common.file.CSVUtils;
-import com.everis.common.properties.PropertiesUtils;
-import com.everis.samplereport.business.CountryCurrencyReportItemCSVMapper;
+import com.everis.samplereport.business.CountryCurrencyReportExporter;
 import com.everis.samplereport.business.CountryCurrencyReportService;
 import com.everis.samplereport.model.CountryCurrencyReportItem;
 
 public class Main {
 	
-	private static final String REPORT_CSV_SUFFIX = "_report.csv";
 	private static final Logger log = LoggerFactory.getLogger(Main.class);
-	
-    private static Configuration config;
-    static {
-        try {
-            config = PropertiesUtils.buildConfiguration("config.properties");
-        } catch(Exception e) {
-        	log.error("Error while loading configuration: ", e);
-        }
-    }
     
 	public static void main(String[] args) {
 		try {
@@ -41,6 +27,13 @@ public class Main {
 			final String countriesStr = argsMap.get("--countries");
 			final String country = argsMap.get("--country");
 			final String dateStr = argsMap.get("--date");
+			String format = argsMap.get("--format");
+			// Using CSV as default format
+			if(format == null) {
+				log.info("No export format selected. Setting format to CSV.");
+				format = "CSV";
+			}
+			log.info("Export format: " + format);
 			
 			List<CountryCurrencyReportItem> reportItems = new ArrayList<CountryCurrencyReportItem>();
 			
@@ -67,10 +60,8 @@ public class Main {
 				log.info("No parameters passed. Retrieving data for all the countries.");
 				reportItems = CountryCurrencyReportService.getInstance().importCountriesCurrenciesData();
 			}
-			final List<String> csvRows = CountryCurrencyReportItemCSVMapper.getInstance().toCSV(reportItems);
-			final String filePath = config.getString("csv.basePath") + new Date().getTime() + REPORT_CSV_SUFFIX;
-			CSVUtils.saveAsCsv(csvRows, filePath);
 			
+			final String filePath = CountryCurrencyReportExporter.getInstance().export(format, reportItems);
 			log.info("============================================================================");
 			log.info("Report generated");
 			log.info("File path: " + filePath);
